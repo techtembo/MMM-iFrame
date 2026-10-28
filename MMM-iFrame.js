@@ -20,7 +20,7 @@ Module.register("MMM-iFrame",{
         start: function () {
                 self = this;
                 var count = 0;
-                if (this.config.url.length > 0 ) {
+                if (this.config.url.length > 0 && this.config.updateInterval > 0) {
                       setInterval( function () { 
                          self.updateDom(1000);
                          console.log('update' + count++)
@@ -41,27 +41,30 @@ resume: function() {
         },
 
         // Override dom generator.
-	getDom: function() {
-                var { width, height } = this.config;
+        getDom: function() {
+                var w = parseInt(this.config.width, 10) || 480;
+                var h = parseInt(this.config.height, 10) || 270;
+                var frameW = parseInt(this.config.frameWidth, 10) || w;
+                var aspectRatioPadding = ((h / w) * 100).toFixed(2);
+
                 var wrapper = document.createElement("div");
-                
-                wrapper.className = "mmm-iframe"
-                wrapper.style.width = `${this.config.frameWidth}px`;
+                wrapper.className = "mmm-iframe";
+                wrapper.style.width = `${frameW}px`;
 
                 var html = `
-                        <div class="mmm-iframe-wrapper" style="padding-top: ${100 / (width / height)}%;">
+                        <div class="mmm-iframe-wrapper" style="position: relative; width: 100%; padding-top: ${aspectRatioPadding}%; overflow: hidden;">
                                 <iframe
                                         src="${this.config.url[this.getRandomInt(0, this.config.url.length)]}"
-                                        width="${width}"
-                                        height="${height}"
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
                                         scrolling="${this.config.scrolling}"
+                                        allowfullscreen="true"
                                 ></iframe>
                         </div>
                 `;
 
                 wrapper.insertAdjacentHTML("afterbegin", html);
 
-		return wrapper;
-	}
+                return wrapper;
+        }
 
 });
